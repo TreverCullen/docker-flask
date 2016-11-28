@@ -5,8 +5,9 @@ Flask app used to test and standardize deployments to AWS using Docker.
 
 ## Requirements
 
-* [AWS CLI](https://aws.amazon.com/cli/)
-* [Docker Engine](https://docs.docker.com/engine/installation/)
+[AWS CLI](https://aws.amazon.com/cli/)
+[Docker Engine](https://docs.docker.com/engine/installation/)
+[DockerHub Account](https://hub.docker.com/)
 
 
 ## Deployment
@@ -20,22 +21,21 @@ please create a pull request.
 
 Our apps will be running on Ubuntu (Currently 15.10) VMs in AWS.
 
-1. Edit aws-dm Credentials
+Edit aws-dm Credentials
 	* ID and Key usually found in *~/.aws/credentials*
 	* __This file is not yet included, pending approval. If needed
-	immediately, contact tknox@umich.edu__
+	immediately, contact tknox@umich.edu.__
 
-2. Run aws-dm Following Prompts
-
-3. Repeat Step 2 for the number of VMs you would like to be in you Docker Swarm
+Run aws-dm following the prompts
+	* Repeat for the number of VMs you would like to be in you Docker Swarm
 
 
 ### Docker Swarm
 
-1. Find IP of Host VM
+Find IP of Host VM
 	1. [Log into UMich AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
 	2. Find Private IP
-		* Services -> EC2 -> Instances -> YOUR_INSTANCE -> Private IP
+		* Services > EC2 > Instances > YOUR_INSTANCE > Private IP
 	3. Note: you can also find the Private IP through SSH
 		1. `ssh -i /PATH/TO/KEY ubuntu@PUBLIC_DNS`
 			* Key Pair is usually located in `~/.docker/machine/machines/INSTANCE_NAME/id_rsa`
@@ -43,20 +43,20 @@ Our apps will be running on Ubuntu (Currently 15.10) VMs in AWS.
 		3. eth0 -> inet addr
 		* [Official Documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
 
-2. Point Docker Machine to Manager
+Point Docker Machine to Manager
 	* `eval $(docker-machine env INSTANCE_NAME)`
 
-3. Initiate Docker Swarm
+Initiate Docker Swarm
 	1. `docker swarm -init --advertise-addr PRIVATE_IP:2377`
 	2. Copy the JOIN command
 		* `docker swarm join --token LONG_TOKEN_STRING PRIVATE_IP:2377`
 
-4. Join Workers
+Join Workers
 	1. Point your Docker Machine to a worker VM
 	2. Run the JOIN command
 	3. Repeat with other worker VMs
 
-5. Check Status
+Check Status
 	1. Switch back to Manager
 	2. Run `docker node ls`
 	3. Check if all manager and worker nodes are present
@@ -64,9 +64,50 @@ Our apps will be running on Ubuntu (Currently 15.10) VMs in AWS.
 
 ### Dockerize Flask App
 
-1. Create a Dockerfile
+Create a Dockerfile
 	* Simple Flask example can be found in this repository
 	* [Official Documentation](https://docs.docker.com/engine/reference/builder/)
 
 
-### Docker Image
+### Docker Hub
+
+__This documentation uses your personal DockerHub account and will need to be updated
+for CAEN Organization__
+
+We next need to link the GitHub repository to DockerHub so it can autogenerate
+a Docker image, which will be used in the swarm.
+
+Log into your [DockerHub](https://hub.docker.com/) account.
+
+Create a Automated Build
+	1. Create > Create Automated Build > GitHub
+	2. Link Account (with full access) if not sone so already
+	3. Choose Repository
+
+You may have to force the first build
+	* YOUR_DOCKER_REPO > Build Settings
+	* Trigger the build you would like (used for versioning)
+	* YOUR_DOCKER_REPO > Build Details
+	* Wait until build completed
+
+
+### Create Service
+
+Point Docker Machine to Manager
+	* `eval $(docker-machine env INSTANCE_NAME)`
+
+Create Service
+	1. `docker service create --name NAME_OF_SERVICE DockerHub_Image`
+		* Ex: `docker service create --name flask_app iamttc/docker-flask`
+
+Scale
+	* To increase the number of containers running in the service, use
+	`docker service scale test=X` where X is the desired number
+
+
+### Edit Service
+
+To find additional information about updating or changing a service, view
+the [Official Documentation](https://docs.docker.com/engine/reference/commandline/service_create/).
+This documentation starts at `service create` but information on the other commands
+can be found at the bottom.
