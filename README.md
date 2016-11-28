@@ -21,22 +21,24 @@ please create a pull request.
 
 Our apps will be running on Ubuntu (Currently 15.10) VMs in AWS.
 
-Edit aws-dm Credentials
-* ID and Key usually found in *~/.aws/credentials*
-* __This file is not yet included, pending approval. If needed
+1. Edit aws-dm Credentials
+	* ID and Key usually found in *~/.aws/credentials*
+	* __This file is not yet included, pending approval. If needed
 immediately, contact tknox@umich.edu.__
 
-Run aws-dm following the prompts
-* Repeat for the number of VMs you would like to be in you Docker Swarm
+2. Run aws-dm following the prompts
+	* Repeat for the number of VMs you would like to be in you Docker Swarm
 
 
 ### Docker Swarm
 
 Find IP of Host VM
+
 1. [Log into UMich AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
 2. Find Private IP
 	* Services > EC2 > Instances > YOUR_INSTANCE > Private IP
 3. Note: you can also find the Private IP through SSH
+
 	1. `ssh -i /PATH/TO/KEY ubuntu@PUBLIC_DNS`
 		* Key Pair is usually located in `~/.docker/machine/machines/INSTANCE_NAME/id_rsa`
 	2. `ifconfig -a`
@@ -47,16 +49,19 @@ Point Docker Machine to Manager
 * `eval $(docker-machine env INSTANCE_NAME)`
 
 Initiate Docker Swarm
+
 1. `docker swarm -init --advertise-addr PRIVATE_IP:2377`
 2. Copy the JOIN command
 	* `docker swarm join --token LONG_TOKEN_STRING PRIVATE_IP:2377`
 
 Join Workers
+
 1. Point your Docker Machine to a worker VM
 2. Run the JOIN command
 3. Repeat with other worker VMs
 
 Check Status
+
 1. Switch back to Manager
 2. Run `docker node ls`
 3. Check if all manager and worker nodes are present
@@ -80,6 +85,7 @@ a Docker image, which will be used in the swarm.
 Log into your [DockerHub](https://hub.docker.com/) account.
 
 Create a Automated Build
+
 1. Create > Create Automated Build > GitHub
 2. Link Account (with full access) if not sone so already
 3. Choose Repository
@@ -97,6 +103,7 @@ Point Docker Machine to Manager
 * `eval $(docker-machine env INSTANCE_NAME)`
 
 Create Service
+
 1. `docker service create --name NAME_OF_SERVICE DockerHub_Image`
 	* Ex: `docker service create --name flask_app iamttc/docker-flask`
 
