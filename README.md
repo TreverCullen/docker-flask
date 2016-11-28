@@ -6,7 +6,9 @@ Flask app used to test and standardize deployments to AWS using Docker.
 ## Requirements
 
 [AWS CLI](https://aws.amazon.com/cli/)
+
 [Docker Engine](https://docs.docker.com/engine/installation/)
+
 [DockerHub Account](https://hub.docker.com/)
 
 
@@ -46,7 +48,8 @@ Find IP of Host VM
 	* [Official Documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
 
 Point Docker Machine to Manager
-* `eval $(docker-machine env INSTANCE_NAME)`
+
+1. `eval $(docker-machine env INSTANCE_NAME)`
 
 Initiate Docker Swarm
 
@@ -82,7 +85,7 @@ for CAEN Organization__
 We next need to link the GitHub repository to DockerHub so it can autogenerate
 a Docker image, which will be used in the swarm.
 
-Log into your [DockerHub](https://hub.docker.com/) account.
+Log into your [DockerHub](https://hub.docker.com/) account
 
 Create a Automated Build
 
@@ -91,10 +94,11 @@ Create a Automated Build
 3. Choose Repository
 
 You may have to force the first build
-* YOUR_DOCKER_REPO > Build Settings
-* Trigger the build you would like (used for versioning)
-* YOUR_DOCKER_REPO > Build Details
-* Wait until build completed
+
+1. YOUR_DOCKER_REPO > Build Settings
+2. Trigger the build you would like (used for versioning)
+3. YOUR_DOCKER_REPO > Build Details
+4. Wait until build completed
 
 
 ### Create Service
@@ -104,7 +108,7 @@ Point Docker Machine to Manager
 
 Create Service
 
-1. `docker service create --name NAME_OF_SERVICE DockerHub_Image`
+* `docker service create --name NAME_OF_SERVICE DockerHub_Image`
 	* Ex: `docker service create --name flask_app iamttc/docker-flask`
 
 Scale
