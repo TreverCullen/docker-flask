@@ -3,7 +3,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return 'Hello world!'
+    return 'This is a Flask app running on Docker!'
 
 # Some simple routing to learn Flask
 
