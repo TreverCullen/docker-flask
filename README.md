@@ -12,6 +12,7 @@ Flask app used to test and standardize deployments to AWS using Docker.
 [DockerHub Account](https://hub.docker.com/)
 
 
+
 ## Deployment
 
 All deployment instructions will be documented below. This is designed to
@@ -19,17 +20,19 @@ standardize deployments. If you would like to make changes to this process,
 please create a pull request.
 
 
+
 ### AWS Virtual Machines
 
 Our apps will be running on Ubuntu (Currently 15.10) VMs in AWS.
 
 1. Edit aws-dm Credentials
-	* ID and Key usually found in *~/.aws/credentials*
+	* ID and Key usually found in `~/.aws/credentials`
 	* __This file is not yet included, pending approval. If needed
 immediately, contact tknox@umich.edu.__
 
 2. Run aws-dm following the prompts
 	* Repeat for the number of VMs you would like to be in you Docker Swarm
+
 
 
 ### Docker Swarm
@@ -39,13 +42,12 @@ Find IP of Host VM
 1. [Log into UMich AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
 2. Find Private IP
 	* Services > EC2 > Instances > YOUR_INSTANCE > Private IP
-3. Note: you can also find the Private IP through SSH
+3. You can also find the Private IP through SSH - [Official Documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
 
 	1. `ssh -i /PATH/TO/KEY ubuntu@PUBLIC_DNS`
 		* Key Pair is usually located in `~/.docker/machine/machines/INSTANCE_NAME/id_rsa`
 	2. `ifconfig -a`
 	3. eth0 -> inet addr
-	* [Official Documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
 
 Point Docker Machine to Manager
 
@@ -70,11 +72,13 @@ Check Status
 3. Check if all manager and worker nodes are present
 
 
+
 ### Dockerize Flask App
 
 Create a Dockerfile
 * Simple Flask example can be found in this repository
 * [Official Documentation](https://docs.docker.com/engine/reference/builder/)
+
 
 
 ### Docker Hub
@@ -101,6 +105,7 @@ You may have to force the first build
 4. Wait until build completed
 
 
+
 ### Create Service
 
 Point Docker Machine to Manager
@@ -114,6 +119,7 @@ Create Service
 Scale
 * To increase the number of containers running in the service, use
 `docker service scale test=X` where X is the desired number
+
 
 
 ### Edit Service
