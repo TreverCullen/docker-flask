@@ -1,4 +1,4 @@
-FROM 		ubuntu:latest
+FROM 		ubuntu:15.10
 
 MAINTAINER 	Trever Cullen "iamttc@umich.edu"
 
