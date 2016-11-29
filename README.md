@@ -48,7 +48,7 @@ Find IP of Host VM
 
 Point Docker Machine to Manager
 
-`eval $(docker-machine env INSTANCE_NAME)`
+1. `eval $(docker-machine env INSTANCE_NAME)`
 
 Initiate Docker Swarm
 
@@ -86,7 +86,7 @@ a Docker image, which will be used in the swarm.
 
 Log into your [DockerHub](https://hub.docker.com/) account
 
-Create a Automated Build
+Create an Automated Build
 
 1. Create > Create Automated Build > GitHub
 2. Link Account (with full access) if not sone so already
@@ -104,21 +104,21 @@ You may have to force the first build
 
 Point Docker Machine to Manager
 
-`eval $(docker-machine env INSTANCE_NAME)`
+1. `eval $(docker-machine env INSTANCE_NAME)`
 
 Create Service
 
-`docker service create --name NAME_OF_SERVICE DockerHub_Image`
-* Ex: `docker service create --name flask_app iamttc/docker-flask`
+1. `docker service create --name NAME_OF_SERVICE DockerHub_Image`
+	* Ex: `docker service create --name flask_app iamttc/docker-flask`
 
 Scale
 
-To increase the number of containers running in the service, use
+1. To increase the number of containers running in the service, use
 `docker service scale test=X` where X is the desired number
 
 Publish
 
-`docker service update --publish-add 80:80 NAME_OF_SERVICE` publishes to port 80
+1. `docker service update --publish-add 80:80 NAME_OF_SERVICE` publishes to port 80
 
 
 ### View Service
