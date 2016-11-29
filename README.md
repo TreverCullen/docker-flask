@@ -25,10 +25,12 @@ please create a pull request.
 
 Our apps will be running on Ubuntu (Currently 15.10) VMs in AWS.
 
+
 1. Edit aws-dm Credentials
 	* ID and Key usually found in `~/.aws/credentials`
 	* __This file is not yet included, pending approval. If needed
 immediately, contact tknox@umich.edu.__
+
 
 2. Run aws-dm following the prompts
 	* Repeat for the number of VMs you would like to be in you Docker Swarm
@@ -49,9 +51,11 @@ Find IP of Host VM
 	2. `ifconfig -a`
 	3. eth0 -> inet addr
 
+
 Point Docker Machine to Manager
 
 1. `eval $(docker-machine env INSTANCE_NAME)`
+
 
 Initiate Docker Swarm
 
@@ -59,11 +63,13 @@ Initiate Docker Swarm
 2. Copy the JOIN command
 	* `docker swarm join --token LONG_TOKEN_STRING PRIVATE_IP:2377`
 
+
 Join Workers
 
 1. Point your Docker Machine to a worker VM
 2. Run the JOIN command
 3. Repeat with other worker VMs
+
 
 Check Status
 
@@ -89,13 +95,16 @@ for CAEN Organization__
 We next need to link the GitHub repository to DockerHub so it can autogenerate
 a Docker image, which will be used in the swarm.
 
+
 Log into your [DockerHub](https://hub.docker.com/) account
+
 
 Create a Automated Build
 
 1. Create > Create Automated Build > GitHub
 2. Link Account (with full access) if not sone so already
 3. Choose Repository
+
 
 You may have to force the first build
 
@@ -111,14 +120,30 @@ You may have to force the first build
 Point Docker Machine to Manager
 * `eval $(docker-machine env INSTANCE_NAME)`
 
-Create Service
 
+Create Service
 * `docker service create --name NAME_OF_SERVICE DockerHub_Image`
 	* Ex: `docker service create --name flask_app iamttc/docker-flask`
+
 
 Scale
 * To increase the number of containers running in the service, use
 `docker service scale test=X` where X is the desired number
+
+
+Publish
+* `docker service update --publish-add 80:80 NAME_OF_SERVICE` publishes to port 80
+
+
+
+### View Service
+
+To view the service you just created, find the Public DNS of your AWS Instances.
+
+1. 1. [Log into UMich AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
+2. Find Public DNS
+	* Services > EC2 > Instances > YOUR_INSTANCE > Public DNS
+	* Connect to any swarm instance to view the service
 
 
 
