@@ -3,15 +3,15 @@
 Flask app used to test and standardize deployments to AWS running Ubuntu 15.10 and Docker 1.12.
 
 __Table of Contents__
-- [Requirements](#)
-- [Deployment](#)
-	- [1. AWS Virtual Machines](#)
-	- [2. Docker Swarm](#)
-	- [3. Dockerize Flask App](#)
-	- [4. Docker Hub](#)
-	- [5. Create Service](#)
-	- [6. View Service](#)
-	- [7. Edit Service](#)
+* [Requirements](#)
+* [Deployment](#)
+	1. [AWS Virtual Machines](#)
+	2. [Docker Swarm](#)
+	3. [Dockerize Flask App](#)
+	4. [Docker Hub](#)
+	5. [Create Service](#)
+	6. [View Service](#)
+	7. [Edit Service](#)
 
 ## Requirements
 
