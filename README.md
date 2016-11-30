@@ -1,6 +1,6 @@
 # CAEN Docker Flask App
 
-Flask app used to test and standardize deployments to AWS using Docker.
+Flask app used to test and standardize deployments to AWS running Ubuntu 15.10 and Docker 1.12.
 
 
 ## Requirements
@@ -19,121 +19,146 @@ standardize deployments. If you would like to make changes to this process,
 please create a pull request.
 
 
-### AWS Virtual Machines
+## 1. AWS Virtual Machines
 
-Our apps will be running on Ubuntu (Currently 15.10) VMs in AWS.
+*This process relies on the bash script `aws_dm` which is not yet included, pending approval. If needed immediately, contact tknox@umich.edu.*
 
-1. Edit aws-dm Credentials
-	* ID and Key usually found in `~/.aws/credentials`
-	* __This file is not yet included, pending approval. If needed
-immediately, contact tknox@umich.edu.__
+Edit aws-dm credentials to reflect your AWS ID and KEY.
 
-2. Run aws-dm following the prompts
-	* Repeat for the number of VMs you would like to be in you Docker Swarm
-
-
-### Docker Swarm
-
-Find IP of Host VM
-
-1. [Log into UMich AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
-2. Find Private IP
-	* Services > EC2 > Instances > YOUR_INSTANCE > Private IP
-3. You can also find the Private IP through SSH - [Official Documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
-
-	1. `ssh -i /PATH/TO/KEY ubuntu@PUBLIC_DNS`
-		* Key Pair is usually located in `~/.docker/machine/machines/INSTANCE_NAME/id_rsa`
-	2. `ifconfig -a`
-	3. eth0 -> inet addr
-
-Point Docker Machine to Manager
-
-1. `eval $(docker-machine env INSTANCE_NAME)`
-
-Initiate Docker Swarm
-
-1. `docker swarm -init --advertise-addr PRIVATE_IP:2377`
-2. Copy the JOIN command
-	* `docker swarm join --token LONG_TOKEN_STRING PRIVATE_IP:2377`
-
-Join Workers
-
-1. Point your Docker Machine to a worker VM
-2. Run the JOIN command
-3. Repeat with other worker VMs
-
-Check Status
-
-1. Switch back to Manager
-2. Run `docker node ls`
-3. Check if all manager and worker nodes are present
+ID and Key are usually found here:
+```
+~/.aws/credentials
+```
+Run aws-dm and follow the prompts to create your desired number of VMs for the swarm.
 
 
-### Dockerize Flask App
+## 2. Docker Swarm
 
-Create a Dockerfile
-* Simple Flask example can be found in this repository
-* [Official Documentation](https://docs.docker.com/engine/reference/builder/)
+__Find IP of Host VM__
 
 
-### Docker Hub
+Find Private IP on [AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
 
-__This documentation uses your personal DockerHub account and will need to be updated
-for CAEN Organization__
+```
+Services > EC2 > Instances > YOUR_INSTANCE > Private IP
+```
+You can also find the Private IP through [AWS SSH](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
 
-We next need to link the GitHub repository to DockerHub so it can autogenerate
+```
+ssh -i /PATH/TO/KEY ubuntu@PUBLIC_DNS
+ifconfig -a
+# eth0 > inet addr
+```
+
+The default key pair for each VM is usually located here:
+```
+~/.docker/machine/machines/INSTANCE_NAME/id_rsa
+```
+
+__Point Docker Machine to Manager__
+
+```
+eval $(docker-machine env INSTANCE_NAME)
+```
+
+__Initiate Docker Swarm__
+
+```
+docker swarm -init --advertise-addr PRIVATE_IP:2377
+```
+Copy the JOIN command
+
+```
+docker swarm join --token LONG_TOKEN_STRING PRIVATE_IP:2377
+```
+
+__Join Workers__
+
+Point your Docker Machine to a worker VM and run the JOIN command. Repeat for the remaining workers.
+
+__Check Status__
+
+Run the command:
+```
+docker node ls
+```
+Check if all nodes are part of the swarm.
+
+
+## 3. Dockerize Flask App
+
+Create a [Dockerfile](https://docs.docker.com/engine/reference/builder/). A simple version for Flask can be found in this repository.
+
+
+## 4. Docker Hub
+
+*This documentation uses your personal DockerHub account and will need to be updated for CAEN Organization*
+
+Link the app's GitHub repository to DockerHub so it can autogenerate
 a Docker image, which will be used in the swarm.
 
-Log into your [DockerHub](https://hub.docker.com/) account
+__Create an Automated Build__
 
-Create an Automated Build
+Log into your [DockerHub](https://hub.docker.com/) account and navigate to:
 
-1. Create > Create Automated Build > GitHub
-2. Link Account (with full access) if not sone so already
-3. Choose Repository
+```
+Create > Create Automated Build > GitHub
+```
+Link Account (with full access) if not sone so already.
+Choose the app's repository.
 
-You may have to force the first build
+__You may have to Force the First Build__
 
-1. YOUR_DOCKER_REPO > Build Settings
-2. Trigger the build you would like (used for versioning)
-3. YOUR_DOCKER_REPO > Build Details
-4. Wait until build completed
-
-
-### Create Service
-
-Point Docker Machine to Manager
-
-1. `eval $(docker-machine env INSTANCE_NAME)`
-
-Create Service
-
-1. `docker service create --name NAME_OF_SERVICE DockerHub_Image`
-	* Ex: `docker service create --name flask_app iamttc/docker-flask`
-
-Scale
-
-1. To increase the number of containers running in the service, use
-`docker service scale test=X` where X is the desired number
-
-Publish
-
-1. `docker service update --publish-add 80:80 NAME_OF_SERVICE` publishes to port 80
+```
+YOUR_DOCKER_REPO > Build Settings
+```
+Trigger the build you would like to run in the swarm.
+```
+YOUR_DOCKER_REPO > Build Details
+```
+Wait until the build completes.
 
 
-### View Service
+## 5. Create Service
 
-To view the service you just created, find the Public DNS of your AWS Instances.
+__Point Docker Machine to Manager__
 
-1. 1. [Log into UMich AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
-2. Find Public DNS
-	* Services > EC2 > Instances > YOUR_INSTANCE > Public DNS
-	* Connect to any swarm instance to view the service
+```
+eval $(docker-machine env INSTANCE_NAME)
+```
+
+__Create Service__
+
+```
+docker service create --name NAME_OF_SERVICE DockerHub_Image
+# Ex) docker service create --name flask_app iamttc/docker-flask
+```
+
+__Scale__
+
+To increase the number of containers running in the service, use
+```
+docker service scale NAME_OF_SERVICE=X
+```
+where X is the desired number of containers. Docker will automatically balance the containers across the nodes.
+
+__Publish__
+
+If we would like to publish to port 80, we can run:
+```
+docker service update --publish-add 80:80 NAME_OF_SERVICE
+```
 
 
-### Edit Service
+## 6. View Service
 
-To find additional information about updating or changing a service, view
-the [Official Documentation](https://docs.docker.com/engine/reference/commandline/service_create/).
-This documentation starts at `service create` but information on the other commands
-can be found at the bottom.
+To view the service you just created, find the Public DNS of your Instances in the [AWS Console](https://michigan-engineering.signin.aws.amazon.com/console).
+```
+Services > EC2 > Instances > YOUR_INSTANCE > Public DNS
+```
+You can connect to any instance in the swarm to view the app.
+
+
+## 7. Edit Service
+
+Additional information about Docker services can be found on the [Official Documentation](https://docs.docker.com/engine/reference/commandline/service_create/).
