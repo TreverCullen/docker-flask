@@ -1,0 +1,19 @@
+#!/bin/bash
+# https://docs.docker.com/machine/drivers/aws/
+
+KEY= # Your Key
+SECRET= # Your Secret
+
+NAME=$1
+TYPE='t2.small'
+
+docker-machine create \
+--driver amazonec2 \
+--amazonec2-access-key $KEY \
+--amazonec2-secret-key $SECRET \
+--amazonec2-vpc-id vpc-3920815c \
+--amazonec2-zone c \
+--amazonec2-subnet-id subnet-a907a9de \
+--amazonec2-security-group caen-custom-docker-machine \
+--amazonec2-monitoring \
+--amazonec2-instance-type $TYPE $NAME
