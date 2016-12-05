@@ -6,7 +6,7 @@ def hello():
     return 'This is a Flask app running on Docker!'
 
 # Some simple routing to learn Flask
-# 
+#
 # @app.route('/<name>')
 # def name(name = None):
 #     return render_template('base.html', name = name)
@@ -25,4 +25,4 @@ def hello():
 # 	return 'User %s' % username
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, host='0.0.0.0')
