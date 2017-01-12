@@ -127,9 +127,10 @@ eval $(docker-machine env INSTANCE_NAME)
 __Create Service__
 
 ```
-docker service create --name NAME_OF_SERVICE DockerHub_Image
+docker service create --name NAME_OF_SERVICE DOCKER_HUB_IMAGE:VERSION
 # Ex) docker service create --name flask_app iamttc/docker-flask
 ```
+The version is optional. It defaults to latest.
 
 __Scale__
 
@@ -141,10 +142,29 @@ where X is the desired number of containers. Docker will automatically balance t
 
 __Publish__
 
-If we would like to publish to port 80, we can run:
+We next need to publish the container ports. Flask defaults to port 5000.
+To publish this port to the standard HTTP port 80, we can run:
 ```
-docker service update --publish-add 80:80 NAME_OF_SERVICE
+docker service update --publish-add 80:5000 NAME_OF_SERVICE
 ```
+If you specified a particular port in your app, replace 5000 with that port.
+
+__One Line__
+
+The steps above can be accomplished in one line.
+```
+docker service create --name NAME_OF_SERVICE --replicas=X -p PUBLISHED:PORTS DOCKER_HUB_IMAGE:VERSION
+# Ex) docker service create --name flask_app --replicas=3 -p 80:5000 iamttc/docker-flask:latest
+```
+
+__Check Status__
+
+View the status of your containers.
+```
+docker service ps NAME_OF_SERVICE
+```
+[Official Documentation](https://docs.docker.com/engine/reference/commandline/service_ps/)
+for viewing Docker tasks.
 
 
 ## 6. View Service
