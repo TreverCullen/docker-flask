@@ -20,8 +20,6 @@ please create a pull request.
 
 ## 1. AWS Virtual Machines
 
-*This process relies on the bash script `aws_dm` which is not yet included, pending approval. If needed immediately, contact tknox@umich.edu.*
-
 Edit aws-dm credentials to reflect your AWS ID and KEY.
 
 ID and Key are usually found here:
