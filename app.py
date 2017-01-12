@@ -6,4 +6,4 @@ def hello():
     return 'This is a Flask app running on Docker!'
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0')
