@@ -18,7 +18,7 @@ All deployment instructions will be documented below. This is designed to
 standardize deployments. If you would like to make changes to this process,
 please create a pull request.
 
----
+
 ## 1. AWS Virtual Machines
 
 Edit `aws-dm` credentials to reflect your AWS ID and KEY.
@@ -29,7 +29,7 @@ ID and Key are usually found here:
 ```
 Run `aws-dm` and follow the prompts to create your desired number of VMs for the swarm.
 
----
+
 ## 2. Docker Swarm
 
 __Find IP of Host VM__
@@ -82,12 +82,12 @@ docker node ls
 ```
 Check if all nodes are part of the swarm.
 
----
+
 ## 3. Dockerize Flask App
 
 Create a [Dockerfile](https://docs.docker.com/engine/reference/builder/). A simple version for Flask can be found in this repository.
 
----
+
 ## 4. Build Image
 
 Two methods for building and hosting your image are documented below. The first is through [AWS EC2 Container Service](https://aws.amazon.com/ecs/) and the second is through [DockerHub](https://hub.docker.com/).
@@ -145,7 +145,7 @@ YOUR_DOCKER_REPO > Build Details
 ```
 Wait until the build completes.
 
----
+
 ## 5. Create Service
 
 __Point Docker Machine to Manager__
@@ -210,7 +210,7 @@ docker service ps NAME_OF_SERVICE
 [Official Documentation](https://docs.docker.com/engine/reference/commandline/service_ps/)
 for viewing Docker tasks.
 
----
+
 ## 6. View Service
 
 To view the service you just created, find the Public DNS of your Instances in the [AWS Console](https://michigan-engineering.signin.aws.amazon.com/console).
@@ -219,7 +219,7 @@ Services > EC2 > Instances > YOUR_INSTANCE > Public DNS
 ```
 You can connect to any instance in the swarm to view the app.
 
----
+
 ## 7. Edit Service
 
 Additional information about Docker services can be found on the [Official Documentation](https://docs.docker.com/engine/reference/commandline/service_create/).
