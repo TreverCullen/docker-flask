@@ -14,19 +14,15 @@ Flask app used to test and standardize deployments to AWS running Ubuntu 15.10 a
 
 ## Deployment
 
-All deployment instructions will be documented below. This is designed to
-standardize deployments. If you would like to make changes to this process,
-please create a pull request.
+We will be creating a [Docker Serive](https://docs.docker.com/engine/reference/commandline/service_create/). 
+All deployment instructions are documented below.
 
 
 ## 1. AWS Virtual Machines
 
-Edit `aws-dm` credentials to reflect your AWS ID and KEY.
+Edit `aws-dm` credentials to reflect your AWS ID and KEY. 
+ID and Key are usually found in `~/.aws/credentials`. 
 
-ID and Key are usually found here:
-```
-~/.aws/credentials
-```
 Run `aws-dm` and follow the prompts to create your desired number of VMs for the swarm.
 
 
@@ -40,7 +36,8 @@ Find Private IP on [AWS Console](https://michigan-engineering.signin.aws.amazon.
 ```
 Services > EC2 > Instances > YOUR_INSTANCE > Private IP
 ```
-You can also find the Private IP through [AWS SSH](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
+You can also find the Private IP through 
+[AWS SSH](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
 
 ```
 ssh -i /PATH/TO/KEY ubuntu@PUBLIC_DNS
@@ -119,8 +116,6 @@ docker push REPO_URI:VERSION
 
 ### b. Docker Hub
 
-*This documentation uses your personal DockerHub account and will need to be updated for CAEN Organization*
-
 Link the app's GitHub repository to DockerHub so it can autogenerate
 a Docker image, which will be used in the swarm.
 
@@ -163,11 +158,14 @@ eval $(aws ecr get-login --region us-east-1)
 Next, initialize the service. We will edit the service later.
 ```
 docker service create --name NAME_OF_SERVICE IMAGE_NAME:VERSION
-# Ex) docker service create --name flask_app iamttc/docker-flask
+# Ex) docker service create --name flask_app iamttc/docker-flask:1.0
 ```
-The version is optional. It defaults to latest.
+The version is optional. It defaults to the latest version pushed, only if the image 
+did not exist on the machine before.
 
-If the image is hosted on EC2, you will need to provide the entire `REPO_URI` in place of the `IMAGE_NAME`. You will also need to pass the additional flag `--with-registry-auth`, which passes the auth key to all members of the swarm.
+If the image is hosted on EC2, you will need to provide the entire `REPO_URI` in place 
+of the `IMAGE_NAME`. You will also need to pass the additional flag `--with-registry-auth`, 
+which passes the auth key to all members of the swarm.
 
 __Scale__
 
@@ -194,11 +192,12 @@ docker service create --name NAME_OF_SERVICE --replicas=X -p PUBLISHED:PORTS DOC
 ```
 DockerHub Example:
 ```
-docker service create --name flask_app --replicas=3 -p 80:5000 iamttc/docker-flask:latest
+docker service create --name flask_app --replicas=3 -p 80:5000 iamttc/docker-flask:1.0
 ```
 EC2 Container Service Example:
 ```
-docker service create --with-registry-auth --name app --replicas=3 -p 80:5000 803057437978.dkr.ecr.us-east-1.amazonaws.com/iamttc/docker-flask:latest
+docker service create --with-registry-auth --name app --replicas=3 -p 80:5000 \
+803057437978.dkr.ecr.us-east-1.amazonaws.com/iamttc/docker-flask:1.0
 ```
 
 __Check Status__
@@ -207,19 +206,32 @@ View the status of your containers.
 ```
 docker service ps NAME_OF_SERVICE
 ```
-[Official Documentation](https://docs.docker.com/engine/reference/commandline/service_ps/)
+[Official Documentation](https://docs.docker.com/engine/reference/commandline/service_ps/) 
 for viewing Docker tasks.
 
 
 ## 6. View Service
 
-To view the service you just created, find the Public DNS of your Instances in the [AWS Console](https://michigan-engineering.signin.aws.amazon.com/console).
+To view the service you just created, find the Public DNS of your Instances in the 
+[AWS Console](https://michigan-engineering.signin.aws.amazon.com/console).
 ```
 Services > EC2 > Instances > YOUR_INSTANCE > Public DNS
 ```
 You can connect to any instance in the swarm to view the app.
 
 
-## 7. Edit Service
+## 7. Update Service
 
-Additional information about Docker services can be found on the [Official Documentation](https://docs.docker.com/engine/reference/commandline/service_create/).
+You will need to update the servie when the image is updated. 
+To prevent the service from shutting down during this process, we can apply rolling updates.
+```
+docker service update --image IMAGE_NAME:VERSION NAME_OF_SERVICE 
+```
+To check the statis of the update, run
+```
+docker service inspect --pretty NAME_OF_SERVICE
+```
+Additional information about updating a service can be found on the 
+[Official Documentation](https://docs.docker.com/engine/swarm/swarm-tutorial/rolling-update/). 
+Remember to use the full `REPO_URI` if pulling the image from EC2.
+
