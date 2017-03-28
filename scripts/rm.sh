@@ -2,4 +2,4 @@
 # Created by Trever Cullen
 
 eval $(docker-machine env $1)
-$2
+docker node rm $2

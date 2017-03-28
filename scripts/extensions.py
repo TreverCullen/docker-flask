@@ -5,6 +5,7 @@ import sys
 import subprocess as sub
 import shlex
 
+# run a bash script in a subprocess
 def run_command(c):
     try:
         result = sub.check_output(shlex.split(c))
@@ -17,3 +18,11 @@ def run_command(c):
             run_command(c)
             return
         return str(e.errno) + ' ' + e.strerror
+
+# format the join command
+def format_join(result, port):
+    join = result[result.find('docker swarm join'):result.find(port) + 4]
+    for c in ['\\','\n']:
+        if c in join:
+            join = join.replace(c,'')
+    return join

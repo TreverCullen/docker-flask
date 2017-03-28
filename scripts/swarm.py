@@ -14,9 +14,9 @@ class Command(cmd.Cmd):
         print 'Docker Swarm and Service Creator'
 
     # variables
-    manager = ''
+    manager = None
+    join = None
     nodes = []
-    join = ''
 
     # this is documented by docker
     port = '2377'
@@ -28,12 +28,13 @@ class Command(cmd.Cmd):
         print '-- initializes a swarm with manager <node>'
     def do_init(self, node):
         if node:
+            self.reset()
             self.manager = node
             self.nodes.append(node)
             c = './init.sh ' + self.manager
             result = run_command(c)
             print result
-            self.join = result[result.find('docker swarm join'):result.find(self.port) + 4]
+            self.join = format_join(result, self.port)
         else:
             self.help_init()
     do_i = do_init
@@ -45,14 +46,19 @@ class Command(cmd.Cmd):
         print '-- adds each space separated <node> to the swarm'
         print '-- must run <init> before running <add>'
     def do_join(self, args):
-        if args and self.manager != '':
+        if args:
+            # must init swarm first
+            if self.manager == None:
+                print 'No Manager, use <init>'
+                return
+            # join nodes to swarm
             for n in args.split():
                 if n not in self.nodes:
-                    self.nodes.append(n)
-                    c = './join.sh ' + n + ' "' + self.join + '"'
+                    c = './join.sh {} "{}"'.format(n, self.join)
                     result = run_command(c)
+                    self.nodes.append(n)
                 else:
-                    result = n + ' already in swarm... continuing'
+                    result = '%s already in swarm... continuing' % n
                 print result
         else:
             self.help_init()
@@ -66,21 +72,28 @@ class Command(cmd.Cmd):
     def do_leave(self, args):
         if args:
             for n in args.split():
-                if n == self.manager:
-                    print 'This is the manager. The entire swarm will be deleted.'
-                    res = raw_input('Are you sure (y/n): ')
-                    if res.lower() == 'y':
-                        c = './leave.sh ' + n
-                        result = run_command(c)
-                elif n in self.nodes:
-                    c = './leave.sh ' + n
+                result = None
+                # remove manager ending swarm
+                if n == self.manager and len(self.nodes) == 1:
+                    c = './leave.sh %s' % n
                     result = run_command(c)
+                    self.reset()
+                # don't remove manager until all others removed
+                elif n == self.manager:
+                    result = 'This is the manager. Please delete all other nodes first.'
+                # remove node, update manager list
+                elif n in self.nodes:
+                    commands = ['./leave.sh %s' % n, './rm.sh {} {}'.format(self.manager, n)]
+                    result = run_command(commands[0])
+                    run_command(commands[1])
+                    nodes.remove(n)
                 else:
-                    result = n + ' not in swarm... continuing'
+                    result = '%s not in swarm... continuing' % n
                 print result
         else:
             self.help_leave()
     do_l = do_leave
+
 
     # obtain information from manager node
     def help_fetch(self):
@@ -89,14 +102,17 @@ class Command(cmd.Cmd):
         print '-- fetches data from manager <node>'
     def do_fetch(self, node):
         if node:
-            c = './fetch.sh ' + node
-            result = ''
+            # clear other swarm if there
+            self.reset()
+            c = './fetch.sh %s' % node
+            result = None
             try:
                 result = run_command(c)
             except:
                 return
+            # parse data
             self.manager = node
-            self.join = result[result.find('docker swarm join'):result.find(self.port) + 4]
+            self.join = format_join(result, self.port)
             data = result[:result.find('To add a worker')].split('\n')[1:-1]
             for temp in data:
                 d = temp.split()
@@ -116,13 +132,14 @@ class Command(cmd.Cmd):
         print '-- shortcut: s'
         print '-- display the status of the swarm'
     def do_status(self, args):
-        if self.manager == '':
+        if not self.manager:
             print 'No Swarm Selected'
             print 'Use <fetch> or <init>'
         else:
+            self.nodes.sort()
             print 'Manager: ' + self.manager
             print 'Nodes: ' + ', '.join(self.nodes)
-            print 'Join Command: ' + self.join
+            # print 'Join Command: ' + self.join # don't really need to show this
     do_s = do_status
 
 
@@ -143,6 +160,20 @@ class Command(cmd.Cmd):
         print 'bye'
         return True
     do_q = do_quit
+
+
+    # reset variables
+    def reset(self):
+        self.manager = None
+        self.nodes = []
+        self.join = None
+
+
+    # send a raw command
+    # TODO
+    def do_raw(self, args):
+        result = run_command(args)
+        print result
 
 
     # hide undocumented commands (shortcuts)
