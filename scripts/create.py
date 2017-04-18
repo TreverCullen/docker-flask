@@ -30,6 +30,10 @@ class Command(cmd.Cmd):
     def do_service(self, args):
         args = args.split()
         try:
+            if self.service.manager != self.swarm.manager:
+                service.reset()
+                self.service.manager = swarm.manager
+            print('here')
             self.service.call[args[0]](''.join(args[1:]))
         except:
             self.service.help_all()

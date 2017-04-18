@@ -28,27 +28,6 @@ Run `aws-dm` and follow the prompts to create your desired number of VMs for the
 
 ## 2. Docker Swarm
 
-__Find IP of Host VM__
-
-
-Find Private IP on [AWS Console](https://michigan-engineering.signin.aws.amazon.com/console)
-
-```
-Services > EC2 > Instances > YOUR_INSTANCE > Private IP
-```
-You can also find the Private IP through 
-[AWS SSH](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
-
-```
-ssh -i /PATH/TO/KEY ubuntu@PUBLIC_DNS
-ifconfig -a
-# eth0 > inet addr
-```
-
-The default key pair for each VM is usually located here:
-```
-~/.docker/machine/machines/INSTANCE_NAME/id_rsa
-```
 
 __Point Docker Machine to Manager__
 
@@ -59,7 +38,7 @@ eval $(docker-machine env INSTANCE_NAME)
 __Initiate Docker Swarm__
 
 ```
-docker swarm -init --advertise-addr PRIVATE_IP:2377
+docker swarm -init --advertise-addr eth0:2377
 ```
 Copy the JOIN command
 

@@ -10,16 +10,22 @@ class Swarm:
     def __init__(self):
         self.port = '2377' # this is documented by docker
         self.manager = None
-        self.join = None
+        self.join_command = None
         self.nodes = []
 
         # used to call functions from arguments
+        # TODO find better way of having multiple keys for ea value
         self.call = {
             'init':     self.init,
+            'i':        self.init,
             'join':     self.join,
+            'j':        self.join,
             'leave':    self.leave,
+            'l':        self.leave,
             'fetch':    self.fetch,
-            'status':   self.status
+            'f':        self.fetch,
+            'status':   self.status,
+            's':        self.status
         }
 
 
@@ -29,13 +35,13 @@ class Swarm:
         print '-- init'
         print '-- join'
         print '-- leave'
+        print '-- status'
         print 'run \'swarm <command>\' for help'
 
 
     # init the swarm
     def help_init(self):
         print 'init <node>'
-        print '-- shortcut: i'
         print '-- initializes a swarm with manager <node>'
     def init(self, node):
         if node:
@@ -45,7 +51,7 @@ class Swarm:
             c = './init.sh ' + self.manager
             result = run_command(c)
             print result
-            self.join = format_join(result, self.port)
+            self.join_command = format_join(result, self.port)
         else:
             self.help_init()
 
@@ -53,9 +59,8 @@ class Swarm:
     # add a node to the swarm
     def help_join(self):
         print 'add <node> <node> ...'
-        print '-- shortcut: a'
         print '-- adds each space separated <node> to the swarm'
-        print '-- must run <init> before running <add>'
+        print '-- must run <init> or <fetch> before running <join>'
     def join(self, args):
         if args:
             # must init swarm first
@@ -65,20 +70,19 @@ class Swarm:
             # join nodes to swarm
             for n in args.split():
                 if n not in self.nodes:
-                    c = './join.sh {} "{}"'.format(n, self.join)
+                    c = './join.sh {} "{}"'.format(n, self.join_command)
                     result = run_command(c)
                     self.nodes.append(n)
                 else:
                     result = '%s already in swarm... continuing' % n
                 print result
         else:
-            self.help_init()
+            self.help_join()
 
 
     # remove node from swarm
     def help_leave(self):
-        print 'leave <node> <node> ...'
-        print '-- shortcut: l'
+        print 'leave <node> <node> ...'        
         print '-- removes <node> from the swarm'
     def leave(self, args):
         if args:
@@ -108,7 +112,6 @@ class Swarm:
     # obtain information from manager node
     def help_fetch(self):
         print 'fetch <node>'
-        print '-- shortcut: f'
         print '-- fetches data from manager <node>'
     def fetch(self, node):
         if node:
@@ -122,7 +125,7 @@ class Swarm:
                 return
             # parse data
             self.manager = node
-            self.join = format_join(result, self.port)
+            self.join_command = format_join(result, self.port)
             data = result[:result.find('To add a worker')].split('\n')[1:-1]
             for temp in data:
                 d = temp.split()
@@ -138,7 +141,6 @@ class Swarm:
     # swarm status
     def help_status(self):
         print 'status'
-        print '-- shortcut: s'
         print '-- display the status of the swarm'
     def status(self, args):
         if not self.manager:
@@ -148,12 +150,12 @@ class Swarm:
             self.nodes.sort()
             print 'Manager: ' + self.manager
             print 'Nodes: ' + ', '.join(self.nodes)
-            # print 'Join Command: ' + self.join # don't really need to show this
+            # print 'Join Command: ' + self.join_command # don't really need to show this
 
     # reset variables
     def __reset__(self):
         self.manager = None
-        self.join = None
+        self.join_command = None
         self.nodes = []
 
 
